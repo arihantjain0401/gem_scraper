@@ -1,0 +1,1 @@
+"""GeM scraper application package."""

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Scheduler — GeM Scraper{% endblock %}
+{% block content %}
+<h1>Scheduled tasks</h1>
+<p class="hint">Tasks are fired by the in-app scheduler (checked every 30 s; missed runs are caught up). New tasks are created from the command line (<code>scripts/manage_task.py</code>), not here — this page can only run, edit keywords, or delete.</p>
+
+{% for t in tasks %}
+<div class="task-card {% if not t['enabled'] %}task-disabled{% endif %}">
+  <div class="task-head">
+    <strong>{{ t['name'] }}</strong>
+    <code>{{ t['id'] }}</code>
+    <span class="badge">{{ 'enabled' if t['enabled'] else 'deleted' }}</span>
+    <span class="hint">daily at {{ '%02d:%02d'|format(t['schedule_hour'], t['schedule_minute']) }} IST</span>
+  </div>
+  <p class="kw">{{ (t['keywords']|fromjson)|join(', ') }}</p>
+  <p class="meta">
+    last run:
+    {% if t['last_run'] %}
+      <a href="{{ url_for('run_detail', run_id=t['last_run']['id']) }}">#{{ t['last_run']['id'] }} · {{ t['last_run']['status'] }}</a>
+      · {{ t['last_run']['started_at']|ist }} IST
+      {% if t['last_run']['error'] %}<br><span class="err">{{ t['last_run']['error'] }}</span>{% endif %}
+    {% else %}
+      never
+    {% endif %}
+  </p>
+  {% if t['enabled'] %}
+  <div class="actions">
+    <form method="post" action="{{ url_for('task_run_now', task_id=t['id']) }}">
+      <button type="submit">Run now</button>
+    </form>
+    <details class="edit">
+      <summary>Edit keywords</summary>
+      <div class="edit-box">
+        <p class="hint">Only the keywords are editable. Schedule and name are fixed.</p>
+        <form method="post" action="{{ url_for('task_edit', task_id=t['id']) }}">
+          <textarea name="keywords" rows="6">{{ (t['keywords']|fromjson)|join('\n') }}</textarea>
+          <button type="submit">Save keywords</button>
+        </form>
+      </div>
+    </details>
+    <form method="post" action="{{ url_for('task_delete', task_id=t['id']) }}"
+          onsubmit="return confirm('Delete task {{ t['id'] }}? Scheduling stops; history is kept.');">
+      <button type="submit" class="danger">Delete</button>
+    </form>
+  </div>
+  {% endif %}
+</div>
+{% else %}
+<p class="empty">No scheduled tasks.</p>
+{% endfor %}
+{% endblock %}

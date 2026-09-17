@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Scrape — GeM Scraper{% endblock %}
+{% block content %}
+<h1>Extract bids</h1>
+<p class="hint">One keyword per line, e.g. <code>Aluminium Plate</code>. Broad keywords take several minutes — the progress panel updates live.</p>
+<textarea id="keywords" rows="8" placeholder="Aluminium Plate&#10;Aluminium Rods"></textarea>
+<div class="actions">
+  <button id="extract" type="button">Extract</button>
+  <span id="message" class="msg"></span>
+</div>
+<div id="progress" class="progress" hidden>Starting…</div>
+<script>
+(function () {
+  var btn = document.getElementById("extract");
+  var ta = document.getElementById("keywords");
+  var msg = document.getElementById("message");
+  var progress = document.getElementById("progress");
+
+  btn.addEventListener("click", async function () {
+    var keywords = ta.value.split("\n").map(function (s) { return s.trim(); }).filter(Boolean);
+    if (!keywords.length) { show("Enter at least one keyword.", true); return; }
+    btn.disabled = true;
+    msg.textContent = "";
+    progress.hidden = false;
+    progress.textContent = "Starting…";
+    var resp;
+    try {
+      resp = await fetch("/api/scrape", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ keywords: keywords })
+      });
+    } catch (e) {
+      show("Could not reach the server.", true);
+      btn.disabled = false;
+      progress.hidden = true;
+      return;
+    }
+    var data = await resp.json().catch(function () { return {}; });
+    if (resp.status === 409) { show(data.error || "Another scrape is already running.", true); btn.disabled = false; progress.hidden = true; return; }
+    if (resp.status === 400) { show(data.error || "Invalid keywords.", true); btn.disabled = false; progress.hidden = true; return; }
+    poll(data.run_id);
+  });
+
+  function poll(runId) {
+    fetch("/api/run/" + runId + "/status")
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        var p = d.progress || {};
+        progress.textContent = "keyword: " + (p.keyword || "…") +
+          " — page " + (p.page || 0) + "/" + (p.pages || 0) +
+          (p.num_found != null ? " — " + p.num_found + " hits" : "") +
+          " — " + (p.docs || 0) + " docs collected";
+        if (d.status === "running") {
+          setTimeout(function () { poll(runId); }, 2000);
+        } else {
+          window.location = "/runs/" + runId;
+        }
+      })
+      .catch(function () {
+        progress.textContent = "Status check failed — retrying…";
+        setTimeout(function () { poll(runId); }, 3000);
+      });
+  }
+
+  function show(text, isError) {
+    msg.textContent = text;
+    msg.className = "msg " + (isError ? "msg-error" : "msg-ok");
+  }
+})();
+</script>
+{% endblock %}

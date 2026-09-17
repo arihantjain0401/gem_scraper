@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login — GeM Scraper</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="login-body">
+<main class="login-card">
+  <h1>GeM Scraper</h1>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="flash flash-{{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endwith %}
+  <form method="post" action="{{ url_for('login_page', next=request.args.get('next', '')) }}">
+    <input type="text" name="username" placeholder="Username" autofocus autocomplete="username">
+    <input type="password" name="password" placeholder="Password" autocomplete="current-password">
+    <button type="submit">Log in</button>
+  </form>
+</main>
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}GeM Scraper{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<nav>
+  <span class="brand">GeM Scraper</span>
+  <a href="{{ url_for('index') }}">Scrape</a>
+  {% if user_role == 'admin' %}
+  <a href="{{ url_for('history') }}">History</a>
+  <a href="{{ url_for('scheduler') }}">Scheduler</a>
+  <a href="{{ url_for('access_log') }}">Access log</a>
+  {% endif %}
+  <span class="spacer"></span>
+  {% if user_role == 'admin' and google_connected %}
+    <span class="nav-google" title="Google Sheets access">Google: {{ google_email or 'connected' }}</span>
+  {% elif user_role == 'admin' and google_client_ready %}
+    <a href="{{ url_for('connect_google') }}" class="nav-google">Connect Google</a>
+  {% endif %}
+  <span class="nav-user">{{ user_name or '' }}</span>
+  <form method="post" action="{{ url_for('logout') }}" class="nav-logout">
+    <button type="submit" class="nav-btn">Log out</button>
+  </form>
+</nav>
+<main>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="flash flash-{{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</main>
+{% if public_url %}
+<footer>Public link: <a href="{{ public_url }}">{{ public_url }}</a></footer>
+{% endif %}
+</body>
+</html>

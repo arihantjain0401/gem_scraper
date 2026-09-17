@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Run #{{ run['id'] }} — GeM Scraper{% endblock %}
+{% block content %}
+<h1>Run #{{ run['id'] }} <span class="status status-{{ run['status'] }}">{{ run['status'] }}</span></h1>
+<p class="meta">
+  started {{ run['started_at']|ist }} IST · mode {{ run['mode'] }}{% if run['task_name'] %} · task {{ run['task_name'] }}{% endif %}
+  · {{ total }} results · {{ run['new_count'] if run['new_count'] is not none else 0 }} new
+  <br>keywords: {{ keywords|join(', ') }}
+</p>
+{% if run['error'] %}<div class="flash flash-error">Error: {{ run['error'] }}</div>{% endif %}
+{% if run['status'] == 'running' %}
+  <div class="progress">Still running — this page refreshes automatically…</div>
+  <script>setTimeout(function () { location.reload(); }, 5000);</script>
+{% endif %}
+
+{% if run['summary'] %}
+  <section class="summary">
+    <h2>AI summary <span class="hint">(shown here only — never saved to sheets)</span></h2>
+    <pre>{{ run['summary'] }}</pre>
+  </section>
+{% endif %}
+
+{% if total %}
+  {% if user_role == 'admin' %}
+  <div class="actions">
+    <form method="post" action="{{ url_for('run_save_sheet', run_id=run['id']) }}">
+      <button type="submit">Save to Google Sheet</button>
+    </form>
+    <form method="post" action="{{ url_for('run_summarize', run_id=run['id']) }}" class="summarize">
+      <button type="submit">Summarize with AI</button>
+    </form>
+  </div>
+  {% endif %}
+
+  <table>
+    <thead><tr>{% for h in headers %}<th>{{ h }}</th>{% endfor %}<th>Link</th></tr></thead>
+    <tbody>
+    {% for r in rows %}
+      <tr>
+        <td>{{ r['bid_number'] }}</td>
+        <td>{{ r['end_date_ist'] }}</td>
+        <td>{{ r['end_time_ist'] }}</td>
+        <td>{{ r['organization'] }}</td>
+        <td>{{ r['location'] }}</td>
+        <td>{{ r['item'] }}</td>
+        <td>{{ r['quantity'] }}</td>
+        <td>{% if r['url'] %}<a href="{{ r['url'] }}" target="_blank" rel="noopener">view</a>{% endif %}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <p class="pager">
+    {% if page > 1 %}<a href="{{ url_for('run_detail', run_id=run['id'], page=page-1) }}">← newer</a>{% endif %}
+    <span>page {{ page }} of {{ pages }}</span>
+    {% if page < pages %}<a href="{{ url_for('run_detail', run_id=run['id'], page=page+1) }}">older →</a>{% endif %}
+  </p>
+{% else %}
+  <p class="empty">No bids matched for this run.</p>
+{% endif %}
+{% endblock %}

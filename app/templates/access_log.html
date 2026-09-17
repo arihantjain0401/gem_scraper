@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Access log — GeM Scraper{% endblock %}
+{% block content %}
+<h1>Access log</h1>
+<p class="hint">Login attempts (successful and failed), newest first. Failed attempts are flagged — if you see unknown IPs, change the password.</p>
+<table>
+  <thead>
+    <tr><th>Time (IST)</th><th>Result</th><th>IP</th><th>Device</th><th>User agent</th></tr>
+  </thead>
+  <tbody>
+  {% for l in logins %}
+    <tr>
+      <td>{{ l['logged_in_at']|ist }}</td>
+      <td>
+        {% if l['success'] %}<span class="status status-completed">success</span>
+        {% else %}<span class="status status-failed">failed</span>{% endif %}
+      </td>
+      <td>{{ l['ip'] }}</td>
+      <td>{{ l['device_label'] }}</td>
+      <td class="kw">{{ l['user_agent'] }}</td>
+    </tr>
+  {% else %}
+    <tr><td colspan="5" class="empty">No login attempts yet.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

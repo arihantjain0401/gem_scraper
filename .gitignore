@@ -1,0 +1,22 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Secrets / credentials (never commit)
+credentials/
+.env
+.env.*
+*.env
+
+# Runtime / generated data
+data/
+output/
+*.sqlite
+*.db
+
+# OS
+.DS_Store
+
+# Claude local settings
+.claude/
