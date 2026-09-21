@@ -1,5 +1,16 @@
 # GeM Scraper
 
+## Claude Code session archive
+
+Redacted summaries of local Claude Code terminal and VS Code sessions are
+stored under `session-summaries/YYYY-MM-DD/`. The raw transcripts stay on the
+Mac and are not committed. `scripts/export_claude_sessions.py` creates the
+summaries, while `scripts/sync_claude_sessions.sh` commits and pushes them to
+this repository. The local macOS LaunchAgent runs the sync daily at 8:00 PM
+in the Mac's current timezone. This repository is public, so review summaries
+before sharing sensitive project details in Claude Code.
+
+
 Web app that scrapes ongoing tender bids from GeM BidPlus (`bidplus.gem.gov.in`)
 by keyword, shows the results in a table, saves them as a new tab in a Google
 Spreadsheet, and optionally produces an AI summary. Daily keyword runs are
