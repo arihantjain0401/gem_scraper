@@ -51,5 +51,5 @@ Done. `CLAUDE.md` revised in place. **Final line count: 221** (target was "prefe
 
 ---
 Generated automatically from the local Claude Code transcript.
-Source digest: `67b8e21bd95e29718dcc3e5ba0a1bd7d0109590161afc0b9de874f50c8987634`
+Source digest: `815c6bea8ebd72791c586c2f849dec4e7244cbd027a53df5b1003eaf7f231b97`
 Raw transcript content is not stored in this repository.
