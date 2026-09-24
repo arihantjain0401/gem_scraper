@@ -94,5 +94,5 @@ Issue #6 reproduced at the source. Now the RAG index and poll state.
 
 ---
 Generated automatically from the local Claude Code transcript.
-Source digest: `6cb60d4b4034bb7e073671238fb6ede0a27cb25661aff73acc3396e5e7df42c5`
+Source digest: `8e4e08f7b8c3e7f04f0ef714adce3dcd55c543309bfe62e7d53665daa3a03278`
 Raw transcript content is not stored in this repository.
